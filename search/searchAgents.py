@@ -43,6 +43,11 @@ import search
 
 import copy
 import numpy as np
+
+import behaviourTree as BT
+
+import random
+
 class GoWestAgent(Agent):
     "An agent that goes West until it can't."
 
@@ -79,15 +84,15 @@ class GAAgent(Agent):
         self.legal_decorator = ["Invert"]
         self.legal_nodes = self.legal_composit + self.legal_leaf + self.legal_decorator
 
-        # self.genome = ["SEL",
-        #     ["SEQ", "Valid.North", "Danger.North", "GoNot.North"],
-        #     ["SEQ", "Valid.East", "Danger.East", "GoNot.East"],
-        #     ["SEQ", "Valid.South", "Danger.South", "GoNot.South"],
-        #     ["SEQ", "Valid.West", "Danger.West", "GoNot.West"],
-        #     "Go.Random"]
+        self.genome = ["SEL",
+             ["SEQ", "Valid.North", "Danger.North", "GoNot.North"],
+             ["SEQ", "Valid.East", "Danger.East", "GoNot.East"],
+             ["SEQ", "Valid.South", "Danger.South", "GoNot.South"],
+             ["SEQ", "Valid.West", "Danger.West", "GoNot.West"],
+             "Go.Random"]
 
-        if genome is None:
-            self.genome = ["SEL", "Go.Stop"]
+        #if genome is None:
+        #    self.genome = ["SEL", "Go.West"]
 
         self.tree = GA_util.parse_node(self.genome, None)
 
@@ -109,9 +114,15 @@ class GAAgent(Agent):
         print_help(self.genome)
 
     def mutate(self):
-        """ YOUR CODE HERE! """
+        i = random.choice(range(0,2))
+        if i == 0:
+            self.genome.append(random.choice(self.legal_nodes))
+        else:
+            self.genome.append(random.choice(self.legal_nodes))
+
+
     def getAction(self, state):
-        action = self.tree(state)
+        action = self.tree(state)[1]
         if action not in state.getLegalPacmanActions():
             # print "Illegal action!!"
             action = 'Stop'
@@ -140,7 +151,7 @@ class SearchAgent(Agent):
     Note: You should NOT change any code in SearchAgent
     """
 
-    def __init__(self, fn='depthFirstSearch', prob='PositionSearchProblem', heuristic='nullHeuristic'):
+    def __init__(self, fn='depthFirstSearch', prob='PositionSearchProblem', heuristic='foodHeuristic'):
         # Warning: some advanced Python magic is employed below to find the right functions and problems
 
         # Get the search function from the name and heuristic
@@ -521,7 +532,8 @@ def foodHeuristic(state, problem):
     """
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
-    return 0
+    return manhattanHeuristic(state, problem)
+    #return 0
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"

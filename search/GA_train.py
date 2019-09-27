@@ -26,12 +26,24 @@ class EvolvePacManBT():
         self.produce_next_generation(self.gene_pool)
 
     def produce_next_generation(self, parents):
-        """ YOUR CODE HERE!"""
+        for parent in parents:
+            parent.mutate()
+
+
     def evaluate_population(self):
         """ Evaluate the fitness, and sort the population accordingly."""
-        """ YOUR CODE HERE!"""
+        total_fitness = []
+        for gene in self.gene_pool:
+            self.args['pacman'] = gene
+            out = runGames(**self.args)
+            fitness_score = [o.state.getScore() for o in out]
+            total_fitness.append((gene, max(fitness_score)))
+        total_fitness = sorted(total_fitness, key=lambda pair: pair[1])
+        self.gene_pool = [g[0] for g in total_fitness]
+        return total_fitness
     def select_parents(self, num_parents):
-        """ YOUR CODE HERE!"""
+        return self.gene_pool[:num_parents]
+
     def run(self, num_generations=10):
         display_args = copy.deepcopy(self.args)
         display_args['display'] = self.display_graphics
@@ -53,7 +65,7 @@ class EvolvePacManBT():
                 display_args['pacman'] = self.gene_pool[0]
                 print('best genome!')
                 self.gene_pool[0].print_genome()
-                runGames(**display_args)
+                #runGames(**display_args)
                 print("############################################################")
                 print("############################################################")
                 print("############################################################")

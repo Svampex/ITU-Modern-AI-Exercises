@@ -1,3 +1,5 @@
+import random
+
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -20,12 +22,15 @@ class TabularNStepQLearning:
         self.Qtable = np.zeros(self.tab_shape)
 
     def action(self, state):
-        """ With probability 1-eps: Retur the expected optimal action, given the current state.
+        """ With probability 1-eps: Return the expected optimal action, given the current state.
             With probability eps: return a random action.
         """
         """ YOUR CODE HERE"""
-        raise NotImplementedError
-
+        #raise NotImplementedError
+        if random.random() < self.eps:
+            a = random.randrange(0,4)
+        else:
+            a = np.argmax(self.Qtable[state[0],state[1]])
         return a
 
     def compute_G(self):
@@ -41,8 +46,8 @@ class TabularNStepQLearning:
         """ Given (state, action, reward, next_state, next_action, done),
             update the self.Qtable.
         """
-        """ YOUR CODE HERE"""
-        raise NotImplementedError
+        td = r + self.gamma * self.Qtable[s_[0], s_[1], self.action(s_)] -  self.Qtable[s[0], s[1], a]
+        self.Qtable[s[0], s[1], a] += self.alpha * td
 
 
 action_dict = {0:"Up", 1:"Right", 2:"Down", 3:"Left"}

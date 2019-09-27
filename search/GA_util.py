@@ -1,8 +1,8 @@
 import numpy as np
-
+import random
 
 opposites = {
-    "North" : "South",
+    "North": "South",
     "South": "North",
     "West": "East",
     "East": "West",
@@ -21,7 +21,12 @@ class Sequence:
 
     def __call__(self, state):
         """ YOUR CODE HERE!"""
-        raise NotImplementedError
+        for child in self.children:
+            status, result = child.__call__(state)
+            if not status:
+                return False, None
+        return True, result
+        # raise NotImplementedError
 
 
 class Selector:
@@ -36,7 +41,12 @@ class Selector:
 
     def __call__(self, state):
         """ YOUR CODE HERE!"""
-        raise NotImplementedError
+        for child in self.children:
+            status, result = child.__call__(state)
+            if status:
+                return True, result
+        return False, None
+        # raise NotImplementedError
 
 
 class CheckValid:
@@ -47,7 +57,11 @@ class CheckValid:
 
     def __call__(self, state):
         """ YOUR CODE HERE!"""
-        raise NotImplementedError
+        if self.direction not in state.getLegalPacmanActions():
+            return False, None
+        else:
+            return True, None
+        # raise NotImplementedError
 
 
 class CheckDanger:
@@ -58,10 +72,29 @@ class CheckDanger:
 
     def __call__(self, state):
         """ YOUR CODE HERE!"""
-        raise NotImplementedError
+        return self.is_dangerous(state)
+        # raise NotImplementedError
 
     def is_dangerous(self, state):
         """ YOUR CODE HERE!"""
+        ghost_pos = state.getGhostPositions()
+        pac_pos = state.getPacmanPosition()
+
+        for pos in ghost_pos:
+            if self.direction == "West":
+                if pos[0] - pac_pos[0] < 2 and pos[1] == pac_pos[1]:
+                    return False, None
+            if self.direction == "East":
+                if pos[0] - pac_pos[0] < 2 and pos[1] == pac_pos[1]:
+                    return False, None
+            if self.direction == "North":
+                if pos[1] - pac_pos[1] < 2 and pos[0] == pac_pos[0]:
+                    return False, None
+            if self.direction == "South":
+                if pos[1] - pac_pos[1] < 2 and pos[0] == pac_pos[0]:
+                    return False, None
+        return True, None
+
 
 class ActionGo:
     """ Return <direction> as an action. If <direction> is 'Random' return a random legal action
@@ -70,8 +103,13 @@ class ActionGo:
         self.direction = direction
 
     def __call__(self, state):
-        """ YOUR CODE HERE!"""
-        raise NotImplementedError
+        if self.direction == "random":
+            directions = state.getLegalPacmanActions()  # get all legal directions
+
+            return True, random.choice(directions)
+        else:
+            return True, self.direction
+        #raise NotImplementedError
 
 
 class ActionGoNot:
@@ -82,13 +120,17 @@ class ActionGoNot:
 
     def __call__(self, state):
         """ YOUR CODE HERE!"""
-        raise NotImplementedError
+        directions = state.getLegalPacmanActions()  # get all legal directions
+        print directions
+        directions.remove(self.direction)  # remove current direction
+
+        return True, random.choice(directions)
+        #raise NotImplementedError
 
 
 class DecoratorInvert:
     def __call__(self, arg):
-        return not arg
-
+        return not arg[0], arg[1]
 
 
 def parse_node(genome, parent=None):
@@ -150,7 +192,3 @@ def parse_node(genome, parent=None):
         raise Exception
 
     return parent
-
-
-
-

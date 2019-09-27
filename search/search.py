@@ -72,6 +72,7 @@ def tinyMazeSearch(problem):
     w = Directions.WEST
     return  [s, s, w, s, w, w, s, w]
 
+
 def depthFirstSearch(problem):
     """
     Search the deepest nodes in the search tree first.
@@ -87,17 +88,98 @@ def depthFirstSearch(problem):
     print "Start's successors:", problem.getSuccessors(problem.getStartState())
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    frontier = util.Stack()
+    currentNode = problem.getStartState()
+    explored = []
+    childParent = {}
+    while True:
+        newNodes = problem.getSuccessors(currentNode)
+        for node, action, cost in newNodes:
+            if node not in explored:
+                frontier.push((node, action, currentNode)) #destination node, action to get to it, the source node
+        explored.append(currentNode)
+        oldNode = currentNode
+        (currentNode, action, prevnode) = frontier.pop()
+        childParent[currentNode] = (prevnode, action)
+        if problem.isGoalState(currentNode):
+            break
+    path = []
+
+    #path.append(action)
+    while True:
+        (node, action) = childParent[currentNode]
+        path.append(action)
+        currentNode = node
+        if currentNode == problem.getStartState():
+            break
+
+    path.reverse()
+    print "Start:", problem.getStartState()
+    return path
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    frontier = util.Queue()
+    currentNode = problem.getStartState()
+    explored = []
+    childParent = {}
+    while True:
+        newNodes = problem.getSuccessors(currentNode)
+        for node, action, cost in newNodes:
+            if node not in explored:
+                frontier.push((node, action, currentNode))  # destination node, action to get to it, the source node
+        explored.append(currentNode)
+        oldNode = currentNode
+        (currentNode, action, prevnode) = frontier.pop()
+        childParent[currentNode] = (prevnode, action)
+        if problem.isGoalState(currentNode):
+            break
+    path = []
+
+    # path.append(action)
+    while True:
+        (node, action) = childParent[currentNode]
+        path.append(action)
+        currentNode = node
+        if currentNode == problem.getStartState():
+            break
+
+    path.reverse()
+    print "Start:", problem.getStartState()
+    return path
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    frontier = util.PriorityQueue()
+    currentNode = problem.getStartState()
+    explored = []
+    currentCost = 0
+    childParent = {}
+    while True:
+        newNodes = problem.getSuccessors(currentNode)
+        for node, action, cost in newNodes:
+            if node not in explored:
+                frontier.push((node, action, currentNode, currentCost + cost), currentCost + cost)  # destination node, action to get to it, the source node
+        explored.append(currentNode)
+        oldNode = currentNode
+        (currentNode, action, prevnode, currentCost) = frontier.pop()
+        childParent[currentNode] = (prevnode, action)
+        if problem.isGoalState(currentNode):
+            break
+    path = []
+
+    # path.append(action)
+    while True:
+        (node, action) = childParent[currentNode]
+        path.append(action)
+        currentNode = node
+        if currentNode == problem.getStartState():
+            break
+
+    path.reverse()
+    print "Start:", problem.getStartState()
+    return path
 
 def nullHeuristic(state, problem=None):
     """
@@ -108,8 +190,35 @@ def nullHeuristic(state, problem=None):
 
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    frontier = util.PriorityQueue()
+    currentNode = problem.getStartState()
+    explored = []
+    currentCost = 0
+    childParent = {}
+    while True:
+        newNodes = problem.getSuccessors(currentNode)
+        for node, action, cost in newNodes:
+            if node not in explored:
+                frontier.push((node, action, currentNode, currentCost + cost), currentCost + cost + heuristic(currentNode, problem))  # destination node, action to get to it, the source node
+        explored.append(currentNode)
+        oldNode = currentNode
+        (currentNode, action, prevnode, currentCost) = frontier.pop()
+        childParent[currentNode] = (prevnode, action)
+        if problem.isGoalState(currentNode):
+            break
+    path = []
+
+    # path.append(action)
+    while True:
+        (node, action) = childParent[currentNode]
+        path.append(action)
+        currentNode = node
+        if currentNode == problem.getStartState():
+            break
+
+    path.reverse()
+    print "Start:", problem.getStartState()
+    return path
 
 
 # Abbreviations
