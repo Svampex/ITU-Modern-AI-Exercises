@@ -1,3 +1,5 @@
+import copy
+
 import numpy as np
 import random
 class Gene():
@@ -12,7 +14,7 @@ class Gene():
     def mutate(self):
         i = 0
         while i < 3:
-            self.genome[random.randint(self.gene_size)] = random.randint(2)
+            self.genome[random.randint(0, self.gene_size-1)] = random.randint(0,1)
             i += 1
 
     def evaluate_fitness(self, target):
@@ -46,26 +48,39 @@ class GeneticAlgorithm():
 
     def select_parents(self, num_parents):
         """ Function that selects num_parents from the population."""
-        candidates = np.random.choice(self.gene_pool, num_parents*2)
+
+        candidates = random.sample(self.gene_pool, num_parents*2)
         winners = []
         while len(candidates) > 0:
             p1 = candidates[0]
             p2 = candidates[1]
             if p1[0] > p2[0]:
-                winners.append(p1)
+                winners.append(candidates[0])
             else:
-                winners.append(p1)
-            candidates = np.delete(candidates, [0,1])
+                winners.append(candidates[1])
+            candidates.remove(p1)
+            candidates.remove(p2)
 
         self.parents = winners
 
     def produce_next_generation(self):
         """ Function that creates the next generation based on parents."""
-        for i in range(len(self.parents)/2):
-            p1gene =  self.parents[i*2][0:5]
-            p2gene = self.parents[i*2+1][0:5]
-            self.parents[i*2][0:5] = p2gene
-            self.parents[i * 2+1][0:5] = p1gene
+        size = 5
+        start = random.randint(0,self.gene_size-size)
+        end = start+size
+        length = int(len(self.parents)/2)
+        for i in range(length):
+            p1 = self.parents[i*2][1]
+            p2 = self.parents[i*2+1][1]
+            p1copy = copy.deepcopy(self.parents[i*2][1])#[start:end]
+            p2copy = copy.deepcopy(self.parents[i*2+1][1])#[start:end]
+            p1.genome[start:end] = p2copy.genome[start:end]
+            p2.genome[start:end] = p1copy.genome[start:end]
+        mut = random.sample(self.gene_pool,  len(self.parents))
+
+        for gene in mut:
+            gene[1].mutate()
+
             # "Creates" new children (2 new, 2 parents die (just modifies parents in place into children))
 
 
@@ -89,7 +104,7 @@ class GeneticAlgorithm():
             self.produce_next_generation()
             i += 1
 
-pop_size = 10
+pop_size = 50
 gene_size = 20
 target = np.zeros(gene_size)
 
