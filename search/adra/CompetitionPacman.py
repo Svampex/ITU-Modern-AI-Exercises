@@ -348,8 +348,11 @@ class CompAgent(SearchAgent):
         self.actions = None
         def takeRandomAction():
             self.actions = None
+            randomDirs = [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]
+
             while True:
-                action = random.choice(dirs)
+                action = random.choice(randomDirs)
+                randomDirs.remove(action)
                 if action in self.state.getLegalActions() and not is_dangerous(action, self.state):
                     return action
 

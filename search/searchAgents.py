@@ -631,20 +631,20 @@ def is_dangerous(direction, state):
         if ghost.scaredTimer > 0:
             return False
     for pos in ghost_pos:
-
+        rng = 3
         distX = pac_pos[0] - pos[0]
         distY = pac_pos[1] - pos[1]
         if direction == "West":
-            if 3 > distX > 0 and 2 > distY > -2:
+            if rng > distX > 0 and rng > distY > -rng:
                 return True
         if direction == "East":
-            if 0 > distX > -3 and 2 > distY > -2:
+            if 0 > distX > -rng and rng > distY > -rng:
                 return True
         if direction == "North":
-            if 0 > distY > -3 and 2 > distX > -2:
+            if 0 > distY > -rng and rng > distX > -rng:
                 return True
         if direction == "South":
-            if 3 > distY > 0 and 2 > distX > -2:
+            if rng > distY > 0 and rng > distX > -rng:
                 return True
     return False
 
@@ -656,12 +656,18 @@ class MySuperAgent(SearchAgent):
 
     def mkTree(self):
         self.actions = None
+
         def takeRandomAction():
             self.actions = None
+            randomDirs = [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]
+
             while True:
-                action = random.choice(dirs)
+                action = random.choice(randomDirs)
+                randomDirs.remove(action)
                 if action in self.state.getLegalActions() and not is_dangerous(action, self.state):
                     return action
+                if len(randomDirs) == 0:
+                    return Directions.STOP
 
         def findPath():
             problem = AnyFoodSearchProblem(self.state)
