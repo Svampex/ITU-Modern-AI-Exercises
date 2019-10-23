@@ -595,7 +595,7 @@ def loadAgent(pacman, nographics):
 
     for moduleDir in pythonPathDirs:
         if not os.path.isdir(moduleDir): continue
-        moduleNames = [f for f in os.listdir(moduleDir) if f.endswith('gents.py')]
+        moduleNames = [f for f in os.listdir(moduleDir) if f.endswith('gents.py') or f.endswith('gent.py')]
         for modulename in moduleNames:
             try:
                 module = __import__(modulename[:-3])

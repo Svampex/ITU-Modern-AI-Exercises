@@ -95,10 +95,7 @@ def backward_pass(x, t, y, z, a, NN, activations, loss):
         # Delta: d_C_d_z (element-wise mult) derivative of the activation layers
         #  delta shape: as above; d_z shape: (b, i)
         """ YOUR CODE HERE """
-        # delta = 0   # <- Insert correct expression
-
         delta = np.einsum('bo, bo -> bo', d_C_d_z, d_a[-l-1])
-
 
         g_b.append(np.mean(delta, axis=0))
         g_w.append(np.mean(np.einsum('bo, bi -> bio', delta, z[-l - 2]),
@@ -129,10 +126,10 @@ class DQNagent(Agent):
 
         """ PLAY AROUND AND CHANGE THIS PART"""
         self.eps = 0.1  # For epsilon greedy action selection.
-        self.alpha = 1e-6  # learning rate
+        self.alpha = 1e-9  # learning rate
         self.gamma = 0.99  # discount factor
 
-        self.layers = [2, 256, 256, 256, self.num_actions]
+        self.layers = [2, 64, 64, 64, self.num_actions]
         self.activation_fns = [NN_util.ReLU, NN_util.ReLU, NN_util.ReLU, NN_util.Linear]
         assert len(self.layers) == len(self.activation_fns) + 1, "Number of layers and activation functions don't match!"
 
@@ -156,7 +153,7 @@ class DQNagent(Agent):
         # Compute our estimate of the Q value, for updating the network
         """ YOUR CODE HERE! """
         # The Q-value in state s. Should be a [1, self.num_actions] shaped np.array
-        affine_transformations, activated_units = NN_util.forward_pass(s, self.NN, self.activation_fns)
+        affine_transformations, activated_units = NN_util.forward_pass(s, self.NN, self.activation_fns) # Predict using the first NN
         Q_pred = activated_units[-1]
         # Compute the target
         """ YOUR CODE HERE! """
@@ -166,23 +163,25 @@ class DQNagent(Agent):
         if d:
             target[0][a] = r
         else:
-            new_aff, new_units = NN_util.forward_pass(s_, self.NN, self.activation_fns)
+            new_aff, new_units = NN_util.forward_pass(s_, self.TNN, self.activation_fns) #Predict target using the second NN
             new_qs = new_units[-1]
             target[0][a] = r + self.gamma * new_qs[0][a_]
 
-        # Update the network
+        # Update the the first network
         g_b, g_w = backward_pass(s, target, Q_pred, activated_units, affine_transformations,
                                  self.NN, self.activation_fns, NN_util.squared_error)
-        #if not d:
-        #    tg_b, tg_w = backward_pass(s_, target, Q_pred, new_units, new_aff,
-        #                             self.TNN, self.activation_fns, NN_util.squared_error)
+        if not d:
+            # Update the the second network
+            tg_b, tg_w = backward_pass(s_, target, Q_pred, new_units, new_aff,
+                                     self.TNN, self.activation_fns, NN_util.squared_error)
         # Stochastic gradient descent
         for l in range(len(g_b)):
             self.NN[0][l] -= self.alpha * g_w[l]
             self.NN[1][l] -= self.alpha * g_b[l]
-            #if not d:
-            #    self.TNN[0][l] -= self.alpha * tg_w[l]
-            #    self.TNN[1][l] -= self.alpha * tg_b[l]
+            if not d:
+                #2nd network
+                self.TNN[0][l] -= self.alpha * tg_w[l]
+                self.TNN[1][l] -= self.alpha * tg_b[l]
 
     def terminal_update(self, state):
         s = self.getNetworkInput(state)

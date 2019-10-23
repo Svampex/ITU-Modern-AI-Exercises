@@ -532,6 +532,7 @@ def foodHeuristic(state, problem):
     """
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
+    #return euclideanHeuristic(state, problem)
     return manhattanHeuristic(state, problem)
     #return 0
 
@@ -719,3 +720,25 @@ class MySuperAgent(SearchAgent):
         if self.root is None:
             self.mkTree()
         return self.root.execute()[0]
+
+
+class PFAgent(SearchAgent):
+
+
+    def popNextAction(self):
+        if len(self.actions) > 0:
+            a = self.actions.pop(0)
+            return a
+        else:
+            return Directions.STOP
+
+    def getAction(self, state):
+        """
+        Returns the next action in the path chosen earlier (in
+        registerInitialState).  Return Directions.STOP if there is no further
+        action to take.
+
+        state: a GameState object (pacman.py)
+        """
+
+        return self.popNextAction()

@@ -1,1 +1,1 @@
-Did not know how to properly include, so copied all files I modified for this (including path finding and behaviour tree).
+In order to be able to run, the files must be put into the search folder.

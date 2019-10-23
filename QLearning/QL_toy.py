@@ -11,8 +11,8 @@ class TabularNStepQLearning:
         self.num_actions = num_actions
         self.n = n  # n parameter in n-step QLearning (ignore for now)
 
-        self.eps = 0.1  # Epsilon parameter - play around with it!
-        self.alpha = 0.1  # learning rate
+        self.eps = 0.00  # Epsilon parameter - play around with it!
+        self.alpha = 0.09  # learning rate
         self.gamma = 0.99  # discount factor
 
         self.exp = []
@@ -27,7 +27,7 @@ class TabularNStepQLearning:
         """
         """ YOUR CODE HERE"""
         #raise NotImplementedError
-        if random.random() < self.eps:
+        if np.random.uniform() < self.eps:
             a = random.randrange(0,4)
         else:
             a = np.argmax(self.Qtable[state[0],state[1]])
